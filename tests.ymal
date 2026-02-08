@@ -1,0 +1,205 @@
+# tests.yaml
+
+tests:
+
+getBalance:
+description: Returns current balance
+cases:
+- name: initial_balance_returned
+input:
+email: "[a@b.com](mailto:a@b.com)"
+startingBalance: 200
+expected:
+balance: 200
+
+constructor:
+description: Validates email and starting balance
+equivalence_classes:
+- valid_email_and_amount
+- invalid_email
+- negative_amount
+- too_many_decimal_places
+cases:
+- name: valid_constructor
+input:
+email: "[a@b.com](mailto:a@b.com)"
+startingBalance: 200
+expected:
+email: "[a@b.com](mailto:a@b.com)"
+balance: 200
+
+```
+  - name: invalid_email_empty
+    input:
+      email: ""
+      startingBalance: 100
+    expected_exception: IllegalArgumentException
+
+  - name: negative_starting_balance
+    input:
+      email: "a@b.com"
+      startingBalance: -10.00
+    expected_exception: IllegalArgumentException
+
+  - name: too_many_decimals_starting_balance
+    input:
+      email: "a@b.com"
+      startingBalance: 100.001
+    expected_exception: IllegalArgumentException
+```
+
+withdraw:
+description: Removes money from account
+equivalence_classes:
+- valid_withdrawal
+- insufficient_funds
+- negative_amount
+- too_many_decimal_places
+cases:
+- name: valid_withdrawal
+starting_balance: 200
+withdraw_amount: 100
+expected_balance: 100
+
+```
+  - name: insufficient_funds
+    starting_balance: 200
+    withdraw_amount: 300
+    expected_exception: InsufficientFundsException
+
+  - name: negative_withdrawal
+    starting_balance: 200
+    withdraw_amount: -10
+    expected_exception: IllegalArgumentException
+
+  - name: too_many_decimals_withdrawal
+    starting_balance: 200
+    withdraw_amount: 10.999
+    expected_exception: IllegalArgumentException
+```
+
+deposit:
+description: Adds money to account
+equivalence_classes:
+- valid_amount
+- zero_amount_border_case
+- negative_amount
+- too_many_decimal_places
+cases:
+- name: valid_deposit
+starting_balance: 100
+deposit_amount: 50
+expected_balance: 150
+
+```
+  - name: zero_deposit_border_case
+    starting_balance: 100
+    deposit_amount: 0.00
+    expected_balance: 100
+
+  - name: negative_deposit
+    starting_balance: 100
+    deposit_amount: -10
+    expected_exception: IllegalArgumentException
+
+  - name: too_many_decimals_deposit
+    starting_balance: 100
+    deposit_amount: 5.123
+    expected_exception: IllegalArgumentException
+```
+
+transfer:
+description: Moves money between accounts
+equivalence_classes:
+- valid_transfer
+- transfer_entire_balance_border_case
+- insufficient_funds
+- invalid_amount
+cases:
+- name: valid_transfer
+sender_balance: 100
+receiver_balance: 50
+transfer_amount: 25
+expected_sender_balance: 75
+expected_receiver_balance: 75
+
+```
+  - name: transfer_entire_balance_border_case
+    sender_balance: 75
+    receiver_balance: 75
+    transfer_amount: 75
+    expected_sender_balance: 0
+    expected_receiver_balance: 150
+
+  - name: insufficient_funds_transfer
+    sender_balance: 0
+    receiver_balance: 150
+    transfer_amount: 1
+    expected_exception: InsufficientFundsException
+
+  - name: negative_transfer
+    sender_balance: 150
+    receiver_balance: 0
+    transfer_amount: -10
+    expected_exception: IllegalArgumentException
+
+  - name: too_many_decimals_transfer
+    sender_balance: 150
+    receiver_balance: 0
+    transfer_amount: 5.999
+    expected_exception: IllegalArgumentException
+```
+
+email_validation:
+description: Checks email format validity
+equivalence_classes:
+- valid_format
+- empty_string_border_case
+- missing_at_symbol
+- missing_local_part
+- missing_domain_dot
+cases:
+- input: "[a@b.com](mailto:a@b.com)"
+expected: true
+
+```
+  - input: ""
+    expected: false
+
+  - input: "ab.com"
+    expected: false
+
+  - input: "@ab.com"
+    expected: false
+
+  - input: "a@bcom"
+    expected: false
+```
+
+amount_validation:
+description: Checks monetary amount validity
+equivalence_classes:
+- valid_amount
+- zero_border_case
+- negative_amount
+- excessive_decimal_places
+cases:
+- input: 10.50
+expected: true
+
+```
+  - input: 0.00
+    expected: true
+
+  - input: 25.0
+    expected: true
+
+  - input: -10.25
+    expected: false
+
+  - input: 1.234
+    expected: false
+
+  - input: 0.001
+    expected: false
+```
